@@ -43,5 +43,4 @@ const pizzaData = [
   },
 ];
 
-
 export default pizzaData;
