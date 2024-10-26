@@ -27,11 +27,17 @@ function Menu() {
       <h2>Our Menu</h2>
 
       {pizzas.length > 0 && (
-        <ul className="pizzas">
-          {pizzas.map((pizza) => {
-            return <Pizza key={pizza.name} pizza={pizza}></Pizza>;
-          })}
-        </ul>
+        <>
+          <p>
+            Authentic Italian cuisine. 6 creative dishes to choose from. All
+            from our stone oven, all organic, all delicious.
+          </p>
+          <ul className="pizzas">
+            {pizzas.map((pizza) => {
+              return <Pizza key={pizza.name} pizza={pizza}></Pizza>;
+            })}
+          </ul>
+        </>
       )}
     </main>
   );
@@ -61,16 +67,15 @@ function Footer() {
 function Pizza(props) {
   const { name, ingredients, price, photoName, soldOut } = props.pizza;
 
-  if (soldOut) return null;
-
+  // if (soldOut) return null;
 
   return (
-    <li className="pizza">
+    <li className={`pizza ${soldOut ? "sold-out" : ""}`}>
       <img src={photoName} alt={name}></img>
       <div>
         <h3>{name}</h3>
         <p>{ingredients}</p>
-        <span>${price + 3}</span>
+        <span>{soldOut ? "SOLD OUT" : `$${price}`}</span>
       </div>
     </li>
   );
