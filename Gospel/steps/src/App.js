@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const messages = [
   "Learn React ⚛️",
   "Apply for jobs 💼",
@@ -5,22 +7,43 @@ const messages = [
 ];
 
 function App() {
-  const step = 3;
+  const [step, setStep] = useState(1);
+  const [isOpen, setIsOpen] = useState(true);
+
+  function handlePrevious() {
+    if (step > 1) setStep(step - 1);
+  }
+  function handleNext() {
+    if (step < 3) setStep(step + 1);
+  }
+
   return (
-    <div className="steps">
-      <div className="numbers">
-        {messages.map((el, index) => (
-          <div className={step >= index + 1 ? "active" : ""}>{index + 1}</div>
-        ))}
-      </div>
+    <>
+      <button className="close" onClick={() => setIsOpen(!isOpen)}>
+        &times;
+      </button>
 
-      <p className="message">Hello</p>
+      {isOpen && (
+        <div className="steps">
+          <div className="numbers">
+            {messages.map((el, index) => (
+              <div key={index} className={step >= index + 1 ? "active" : ""}>
+                {index + 1}
+              </div>
+            ))}
+          </div>
 
-      <div className="buttons">
-        <button>Previous</button>
-        <button>Next</button>
-      </div>
-    </div>
+          <p className="message">
+            step {step}: {messages[step - 1]}
+          </p>
+
+          <div className="buttons">
+            <button onClick={handlePrevious}>Previous</button>
+            <button onClick={handleNext}>Next</button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
