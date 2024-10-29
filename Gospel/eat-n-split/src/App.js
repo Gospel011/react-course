@@ -31,18 +31,14 @@ export default function App() {
 
   function handleAddFriend(friend) {
     setFriends((friends) => [...friends, friend]);
+    toogleShowAddFriend();
   }
 
   return (
     <div className="app">
       <div className="sidebar">
         <FriendsList friends={friends} />
-        {showAddFriend && (
-          <FormAddFriend
-            onAddFriend={handleAddFriend}
-            toogleShowAddFriend={toogleShowAddFriend}
-          />
-        )}
+        {showAddFriend && <FormAddFriend onAddFriend={handleAddFriend} />}
         <Button onClick={toogleShowAddFriend}>
           {showAddFriend ? "Close" : "Add Friend"}
         </Button>
@@ -93,7 +89,7 @@ function Button({ children, onClick }) {
   );
 }
 
-function FormAddFriend({ onAddFriend, toogleShowAddFriend }) {
+function FormAddFriend({ onAddFriend }) {
   const [name, setName] = useState("");
   const [image, setImage] = useState("https://i.pravatar.cc/48");
 
@@ -118,13 +114,7 @@ function FormAddFriend({ onAddFriend, toogleShowAddFriend }) {
   }
 
   return (
-    <form
-      className="form-add-friend"
-      onSubmit={(e) => {
-        handleSubmit(e);
-        toogleShowAddFriend();
-      }}
-    >
+    <form className="form-add-friend" onSubmit={handleSubmit}>
       <TextInput value={name} onChange={(e) => setName(e.target.value)}>
         👬 Friend name
       </TextInput>
