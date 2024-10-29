@@ -38,6 +38,7 @@ export default function App() {
   function handleFriendSelection(friend) {
     // console.log({ friend });
     setSelectedFriend(selectedFriend?.id === friend.id ? null : friend);
+    setShowAddFriend(false)
   }
 
   function handleSplitBill(friendsShare) {
