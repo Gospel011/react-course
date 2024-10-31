@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const tempMovieData = [
   {
@@ -51,18 +51,71 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
+  const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState(tempWatchedData);
+  const [isLoading, setIsLoading] = useState(false);
+  // const query = "cool";
+  const [query, setQuery] = useState("Heaven");
+
+  const [error, setError] = useState("");
+
+  useEffect(function (params) {
+    async function fetchMovies() {
+      setIsLoading(true);
+      setError("");
+      try {
+        const res = await fetch(
+          `https://www.omdbapi.com/?apikey=bef6cd4d&page=1&s=${query}`
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+
+          if (data["Response"] === "False") {
+            throw new Error(data["Error"]);
+          }
+
+          console.log({ data });
+
+          setMovies(data["Search"]);
+        } else {
+          // Handle status code errors
+          switch (res.status) {
+            case 401:
+              throw new Error("You are not authoried to view this resource");
+            default:
+              throw new Error("An error occured");
+          }
+        }
+      } catch (error) {
+        console.log({ ErrorIs: error.message });
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+
+      console.log({ error });
+    }
+
+    if (query.length < 3) return;
+
+    fetchMovies();
+  }, [query, error]);
+
   return (
     <>
       <NavBar>
-        <SearchBar />
+        <SearchBar query={query} setQuery={setQuery} />
         <ResultsLength movies={movies} />
       </NavBar>
 
       <Main>
         <Box>
-          <MoviesList movies={movies} />
+          {/* {<ErrorMessage error={error} />} */}
+          {/* { isLoading ? <Loader /> : <MoviesList movies={movies} />} */}
+          {isLoading && <Loader />}
+          {!isLoading && !error && <MoviesList movies={movies} />}
+          {error && <ErrorMessage error={error} />}
         </Box>
         <Box>
           <WatchedSummary watched={watched} />
@@ -71,6 +124,15 @@ export default function App() {
       </Main>
     </>
   );
+}
+
+function ErrorMessage({ error }) {
+  console.log({ error });
+  return <p className="error">{`🚫 ${error}`}</p>;
+}
+
+function Loader() {
+  return <p className="loader">Loading...</p>;
 }
 
 function Main({ children }) {
@@ -94,8 +156,7 @@ function ResultsLength({ movies }) {
   );
 }
 
-function SearchBar() {
-  const [query, setQuery] = useState("");
+function SearchBar({ query, setQuery }) {
   return (
     <input
       className="search"
