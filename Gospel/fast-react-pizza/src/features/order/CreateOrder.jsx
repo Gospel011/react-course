@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
 import Button from "../../ui/Button";
 import { createOrder } from "../../services/apiRestaurant";
+import { useSelector } from "react-redux";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -38,6 +39,8 @@ const fakeCart = [
 function CreateOrder() {
   const [withPriority, setWithPriority] = useState(false);
   const navigation = useNavigation();
+  const username = useSelector((store) => store.user.username);
+
   const isSubmitting = navigation.state === "submitting";
   const formErrors = useActionData();
 
@@ -59,6 +62,7 @@ function CreateOrder() {
             className="input grow"
             name="customer"
             id="firstName"
+            defaultValue={username}
             required
           />
         </div>
@@ -75,7 +79,11 @@ function CreateOrder() {
               id="phone"
               required
             />
-            {formErrors?.phone && <p className="mt-2 text-xs text-red-700 bg-red-100 rounded-md p-2">{formErrors.phone}</p>}
+            {formErrors?.phone && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {formErrors.phone}
+              </p>
+            )}
           </div>
         </div>
 
@@ -95,7 +103,7 @@ function CreateOrder() {
           </div>
         </div>
 
-        <div className="mb-12 flex gap-5 items-center">
+        <div className="mb-12 flex items-center gap-5">
           <input
             type="checkbox"
             name="priority"
@@ -104,11 +112,13 @@ function CreateOrder() {
             value={withPriority}
             onChange={(e) => setWithPriority(e.target.checked)}
           />
-          <label htmlFor="priority" className="font-medium">Want to yo give your order priority?</label>
+          <label htmlFor="priority" className="font-medium">
+            Want to yo give your order priority?
+          </label>
         </div>
 
         <div>
-          <Button disabled={isSubmitting} type={'primary'}>
+          <Button disabled={isSubmitting} type={"primary"}>
             {isSubmitting ? "Placing order..." : "Order now"}
           </Button>
         </div>
