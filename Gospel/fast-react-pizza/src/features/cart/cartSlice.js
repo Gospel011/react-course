@@ -26,13 +26,23 @@ const cartSlice = createSlice({
       });
     },
     decrementQuantity(state, action) {
+      let removeItem = false;
       state.cart = state.cart.map((el) => {
         if (el.id == action.payload && el.quantity > 0) {
           el.quantity -= 1;
+          el.totalPrice = el.quantity * el.unitPrice;
+          if (el.quantity === 0) {
+            removeItem = true;
+          }
         }
 
         return el;
       });
+
+      if (removeItem) {
+        console.log({ action });
+        cartSlice.caseReducers.deleteItem(state, action);
+      }
     },
     clearCart(state) {
       state.cart = [];

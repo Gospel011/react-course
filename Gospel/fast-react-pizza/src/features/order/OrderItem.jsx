@@ -1,8 +1,7 @@
+/* eslint-disable react/prop-types */
 import { formatCurrency } from "../../utils/helpers";
 
-// eslint-disable-next-line react/prop-types
-function OrderItem({ item }) {
-  // eslint-disable-next-line react/prop-types
+function OrderItem({ item, isLoadingIngredients, ingredients }) {
   const { quantity, name, totalPrice } = item;
 
   return (
@@ -13,6 +12,8 @@ function OrderItem({ item }) {
         </p>
         <p className="font-bold">{formatCurrency(totalPrice)}</p>
       </div>
+
+      <p className="text-sm text-stone-500 italic capitalize">{isLoadingIngredients ? 'Loading...' : `${ingredients.join(', ')}`}</p>
     </li>
   );
 }

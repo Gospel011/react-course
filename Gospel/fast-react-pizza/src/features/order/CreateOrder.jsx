@@ -4,7 +4,12 @@ import { useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
 import Button from "../../ui/Button";
 import { createOrder } from "../../services/apiRestaurant";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import EmptyCart from "../cart/EmptyCart";
+import store from "../../store";
+import { clearCart, getTotalCartPrice } from "../cart/cartSlice";
+import { formatCurrency } from "../../utils/helpers";
+import { fetchAddress } from "../user/userSlice";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -12,39 +17,68 @@ const isValidPhone = (str) =>
     str,
   );
 
-const fakeCart = [
-  {
-    pizzaId: 12,
-    name: "Mediterranean",
-    quantity: 2,
-    unitPrice: 16,
-    totalPrice: 32,
-  },
-  {
-    pizzaId: 6,
-    name: "Vegetale",
-    quantity: 1,
-    unitPrice: 13,
-    totalPrice: 13,
-  },
-  {
-    pizzaId: 11,
-    name: "Spinach and Mushroom",
-    quantity: 1,
-    unitPrice: 15,
-    totalPrice: 15,
-  },
-];
+// const fakeCart = [
+//   {
+//     pizzaId: 12,
+//     name: "Mediterranean",
+//     quantity: 2,
+//     unitPrice: 16,
+//     totalPrice: 32,
+//   },
+//   {
+//     pizzaId: 6,
+//     name: "Vegetale",
+//     quantity: 1,
+//     unitPrice: 13,
+//     totalPrice: 13,
+//   },
+//   {
+//     pizzaId: 11,
+//     name: "Spinach and Mushroom",
+//     quantity: 1,
+//     unitPrice: 15,
+//     totalPrice: 15,
+//   },
+// ];
 
 function CreateOrder() {
   const [withPriority, setWithPriority] = useState(false);
   const navigation = useNavigation();
-  const username = useSelector((store) => store.user.username);
+  const {
+    username,
+    status: addressStatus,
+    position,
+    address,
+    error,
+  } = useSelector((store) => store.user);
+  const dispatch = useDispatch();
+
+  const isLoadingAddress = addressStatus === "loading";
 
   const isSubmitting = navigation.state === "submitting";
   const formErrors = useActionData();
 
-  const cart = fakeCart;
+  // const cart = fakeCart;
+  const cart = useSelector((store) => store.cart.cart).map((item) => {
+    const { id: pizzaId, name, quantity, unitPrice, totalPrice } = item;
+
+    const newItem = {
+      pizzaId,
+      name,
+      quantity,
+      unitPrice,
+      totalPrice,
+      error,
+    };
+
+    return newItem;
+  });
+
+  const totalCartPrice = useSelector(getTotalCartPrice);
+
+  let priorityPrice = withPriority ? totalCartPrice * 0.2 : 0;
+
+  if (!cart.length) return <EmptyCart />;
 
   return (
     <div className="px-4 py-6">
@@ -91,15 +125,37 @@ function CreateOrder() {
           <label htmlFor="address" className="sm:basis-40">
             Address
           </label>
-          <div className="grow">
-            <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+          <div className="relative grow">
             <input
               type="text"
               className="input w-full"
               name="address"
+              disabled={isLoadingAddress}
+              defaultValue={address}
               id="address"
               required
             />
+            {!position.latitude && !position.longitude && (
+              <span className="absolute top-[3px] right-[3px] md:top-[5px] md:right-[4px]">
+                <Button
+                  type={"small"}
+                  className=""
+                  disabled={isLoadingAddress}
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    dispatch(fetchAddress());
+                  }}
+                >
+                  Fetch Address
+                </Button>
+              </span>
+            )}
+            {addressStatus == "error" && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {error}
+              </p>
+            )}
           </div>
         </div>
 
@@ -118,8 +174,20 @@ function CreateOrder() {
         </div>
 
         <div>
+          <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+          <input
+            type="hidden"
+            name="position"
+            value={
+              position.latitude && position.longitude
+                ? `${position.latitude}, ${position.longitude}`
+                : ""
+            }
+          />
           <Button disabled={isSubmitting} type={"primary"}>
-            {isSubmitting ? "Placing order..." : "Order now"}
+            {isSubmitting
+              ? "Placing order..."
+              : `Order now from ${formatCurrency(totalCartPrice + priorityPrice)}`}
           </Button>
         </div>
       </Form>
@@ -130,7 +198,6 @@ function CreateOrder() {
 // eslint-disable-next-line react-refresh/only-export-components
 export async function action({ request }) {
   const formData = await request.formData();
-
   const order = Object.fromEntries(formData);
 
   const body = {
@@ -152,6 +219,8 @@ export async function action({ request }) {
   // return null;
 
   const newOrder = await createOrder(body);
+
+  store.dispatch(clearCart());
 
   return redirect(`/order/${newOrder.id}`);
 }
