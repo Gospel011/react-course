@@ -10,16 +10,19 @@ function AppLayout() {
   console.log({ isLoading });
 
   return (
-    <div className="layout">
+    <div className="grid h-dvh grid-rows-[auto_1fr_auto]">
       {/* LOADER */}
       {isLoading && <Loader />}
+      {/* <Loader /> */}
       {/* HEADER */}
       <Header />
 
       {/* MAIN CONTENT AREA */}
-      <main>
-        <Outlet />
-      </main>
+      <div className="overflow-y-scroll">
+        <main className="mx-auto max-w-3xl">
+          <Outlet />
+        </main>
+      </div>
 
       {/* CART OVERVIEW */}
       <CartOverview />
