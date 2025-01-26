@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 // eslint-disable-next-line react/prop-types
-function Button({ children, disabled, to, type }) {
+function Button({ children, disabled, to, type, onClick }) {
   const base =
     "inline-block text-sm rounded-full bg-yellow-400 font-semibold tracking-wide text-stone-800 uppercase transition-all duration-300 hover:bg-yellow-300 hover:text-stone-700 focus:bg-yellow-300 focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-yellow-200 disabled:text-stone-700 ";
 
@@ -23,7 +23,7 @@ function Button({ children, disabled, to, type }) {
   }
 
   return (
-    <button disabled={disabled} className={styles[type]}>
+    <button disabled={disabled} onClick={onClick} className={styles[type]}>
       {children}
     </button>
   );

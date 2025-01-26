@@ -52,4 +52,10 @@ export const {
 
 const cartReducer = cartSlice.reducer;
 
+export const getTotalCartQuantity = (store) =>
+    store.cart.cart.reduce((sum, item) => sum + item.quantity, 0);
+
+export const getTotalCartPrice = (store) =>
+    store.cart.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+
 export default cartReducer;
