@@ -10,6 +10,7 @@ import {
   formatDate,
 } from "../../utils/helpers";
 import { useEffect } from "react";
+import UpdateOrder from "./UpdateOrder";
 
 // const order = {
 //   id: "ABCDEF",
@@ -57,7 +58,7 @@ function Order() {
     }
   }, []);
 
-  console.log({ data: fetcher.data });
+  // console.log({ data: fetcher.data });
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
   const {
     id,
@@ -105,7 +106,8 @@ function Order() {
             key={item.pizzaId}
             isLoadingIngredients={fetcher.state == "loading"}
             ingredients={
-              fetcher.data?.find((el) => el.id === item.pizzaId).ingredients
+              fetcher.data?.find((el) => el.id === item.pizzaId).ingredients ??
+              []
             }
           />
         ))}
@@ -124,6 +126,12 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+
+      {!priority && (
+        <div className="text-right">
+          <UpdateOrder />
+        </div>
+      )}
     </div>
   );
 }
