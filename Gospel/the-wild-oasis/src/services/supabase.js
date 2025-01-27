@@ -5,5 +5,4 @@ const superbaseKey = import.meta.env.VITE_SUPERBASE_KEY;
 
 const supabase = createClient(superbaseUrl, superbaseKey);
 
-
 export default supabase;
