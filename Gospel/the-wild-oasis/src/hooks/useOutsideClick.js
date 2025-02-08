@@ -8,6 +8,10 @@ function useOutsideClick(handler) {
         const clickedOutside = Boolean(
           e.target.children.namedItem(ref.current?.id)
         );
+
+        console.log({ clickedOutside });
+
+        console.log({ current: ref.current, target: e.target });
         if (clickedOutside) handler();
       }
 
